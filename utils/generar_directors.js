@@ -1,6 +1,10 @@
 const mongoose = require("mongoose");
+let urimongo = "mongodb+srv://admin:admin@cluster0.0aa3g.mongodb.net/test";
+console.log(typeof urimongo);
+mongoose
+  .connect(urimongo, { useNewUrlParser: true, serverSelectionTimeoutMS: 5000 })
+  .catch((err) => console.error(err));
 const Director = require(__dirname + "/../models/director");
-mongoose.connect("mongodb://localhost:27017/pelicules2");
 Director.collection.drop();
 let d1 = new Director({
   nom: "nom1",

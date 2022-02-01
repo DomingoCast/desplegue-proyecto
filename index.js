@@ -8,7 +8,6 @@ insertar, borrar, etc.
 // Carga de librerías
 const express = require("express");
 const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
 const nunjucks = require("nunjucks");
 const methodOverride = require("method-override");
 const session = require("express-session");
@@ -18,11 +17,18 @@ const pelicules = require(__dirname + "/routes/pelicules");
 const public = require(__dirname + "/routes/public");
 
 // Conectar con BD en Mongo
-mongoose.connect("mongodb://localhost:27017/pelicules2", {
-  useNewUrlParser: true,
-});
+
+// mongoose.connect("mongodb://localhost:27017/pelicules2", {
+//   useNewUrlParser: true,
+// });
+let urimongo = "mongodb+srv://admin:admin@cluster0.0aa3g.mongodb.net/test";
+console.log(typeof urimongo);
+mongoose
+  .connect(urimongo, { useNewUrlParser: true, serverSelectionTimeoutMS: 5000 })
+  .catch((err) => console.error(err));
 
 // Inicializar Express
+
 let app = express();
 
 //Security
