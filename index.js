@@ -15,7 +15,6 @@ const session = require("express-session");
 
 // Enrutadores
 const pelicules = require(__dirname + "/routes/pelicules");
-const directors = require(__dirname + "/routes/directors");
 const public = require(__dirname + "/routes/public");
 
 // Conectar con BD en Mongo
@@ -66,7 +65,6 @@ app.use(
 app.use("/public", express.static(__dirname + "/public"));
 app.use(express.static(__dirname + "/node_modules/bootstrap/dist"));
 app.use("/pelicules", pelicules);
-app.use("/directors", directors); // Para la parte opcional
 app.use("/", public); // Para la parte opcional
 
 // Puesta en marcha del servidor
