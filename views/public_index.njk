@@ -1,4 +1,4 @@
-{% extends "base.njk" %}
+{% extends "public_base.njk" %}
 
 {% block titulo %}Pelicules | Listado{% endblock %}
 
@@ -6,8 +6,16 @@
 
     <h1>Listado de pelicules</h1>
     <form action="/buscar" method="GET">
-        <label for="nom">Nom: </label>
-            <input type="text" name="nom"/>
+        <label for="titol">Titol: </label>
+            <input type="text" name="titol" {% if query.titol %}value={{query.titol}} {% endif %}/>
+        <label for="genere">Genere: </label>
+        <select name="genere" id="genere">
+            <option value="" {% if ( genere == query.genere ) %} selected {% endif %}>tots</option>
+            {% for genere in generes %}
+                    <option value="{{genere}}" {% if ( genere == query.genere ) %} selected {% endif %}>{{genere}}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary">Buscar</button>
     </form>
 
     <table width="100%">
@@ -19,12 +27,7 @@
                     <td class="impar">{{ pelicula.titol }}</td>
                 {% endif %}
                 <td>
-                    <a class="btn btn-success" href="/pelicules/{{ pelicula.id }}">Ver ficha</a>
-                    <form style="display:inline" action="/pelicules/{{ pelicula.id }}" method="post">
-                        <input type="hidden" name="_method" value="delete" />
-                        <button type="submit" class="btn btn-danger">Borrar</button>
-                    </form>
-                    <a class="btn btn-primary" href="/pelicules/editar/{{ pelicula.id }}">Editar</a>
+                    <a class="btn btn-success" href="/pelicula/{{ pelicula.id }}">Ver ficha</a>
                 </td>
             </tr>
         {% else %}

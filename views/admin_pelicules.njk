@@ -1,4 +1,4 @@
-{% extends "base.njk" %}
+{% extends "admin_base.njk" %}
 
 {% block titulo %}Pelicules | Listado{% endblock %}
 
@@ -10,12 +10,11 @@
         {% for pelicula in pelicules %}
             <tr>
                 {% if loop.index % 2 == 0 %}
-                    <td class="par">{{ pelicula.titulo }}</td>
+                    <td class="par">{{ pelicula.titol }}</td>
                 {% else %}
-                    <td class="impar">{{ pelicula.titulo }}</td>
+                    <td class="impar">{{ pelicula.titol }}</td>
                 {% endif %}
                 <td>
-                    <a class="btn btn-success" href="/pelicules/{{ pelicula.id }}">Ver ficha</a>
                     <form style="display:inline" action="/pelicules/{{ pelicula.id }}" method="post">
                         <input type="hidden" name="_method" value="delete" />
                         <button type="submit" class="btn btn-danger">Borrar</button>

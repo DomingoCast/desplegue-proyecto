@@ -1,4 +1,4 @@
-{% extends "base.njk" %}
+{% extends "admin_base.njk" %}
 
 {% block titol %}Pelicules | Nuevo{% endblock %}
 
@@ -9,8 +9,8 @@
     {% if (new) %}
         <form action="/pelicules" method="POST" enctype="multipart/form-data">
     {% else %}
-        <form action="/pelicules/{{pelicula.id}}" method="post" >
-        <input type="hidden" name="_method" value="put" />
+        <form action="/pelicules/{{pelicula.id}}?_method=PUT" method="post" enctype="multipart/form-data" >
+        {# <input type="hidden" name="_method" value="put" /> #}
     {% endif %}
         <div class="form-group">
             <label for="titol">Titol:</label>

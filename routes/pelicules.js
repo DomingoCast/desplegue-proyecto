@@ -1,6 +1,11 @@
 const express = require("express");
 const multer = require("multer");
 const Director = require("../models/director");
+const autenticacio = require("../utils/autenticacio");
+// let autenticacio = (req, res, next) => {
+//   if (req.session && req.session.usuario) return next();
+//   else res.render("auth_login");
+// };
 
 const generes = ["comedia", "terror", "drama", "aventures ", "altres"];
 
@@ -19,16 +24,17 @@ let storage = multer.diskStorage({
 let upload = multer({ storage: storage });
 
 // Listado general
-router.get("/", (req, res) => {
+router.get("/", autenticacio, (req, res) => {
   Pelicula.find()
     .then((resultado) => {
-      res.render("public_index", { pelicules: resultado });
+      res.render("admin_pelicules", { pelicules: resultado });
     })
-    .catch((error) => {});
+    // .catch((error) => {});
+    .catch((error) => res.render("admin_error"));
 });
 
 // Formulario de nuevo pelicula
-router.get("/nuevo", (req, res) => {
+router.get("/nova", autenticacio, (req, res) => {
   Director.find()
     .then((resultado) => {
       res.render("admin_pelicules_form", {
@@ -37,13 +43,12 @@ router.get("/nuevo", (req, res) => {
         new: true,
       });
     })
-    .catch((err) => {
-      console.err(err);
-    });
+    // .catch((err) => {});
+    .catch((error) => res.render("admin_error"));
 });
 
 // Formulario de edición de pelicula
-router.get("/editar/:id", (req, res) => {
+router.get("/editar/:id", autenticacio, (req, res) => {
   Pelicula.findById(req.params["id"])
     .then((pelicula) => {
       if (pelicula) {
@@ -64,39 +69,37 @@ router.get("/editar/:id", (req, res) => {
     });
 });
 
-// Ficha de pelicula
-router.get("/:id", (req, res) => {
-  Pelicula.findById(req.params.id)
-    .populate("director")
-    .populate("director")
-    .then((resultado) => {
-      console.log(resultado.plataformes);
-      if (resultado) res.render("public_pelicula", { pelicula: resultado });
-      else res.render("error", { error: "Pelicula no encontrado" });
-    })
-    .catch((error) => {});
-});
-
 // Insertar pelicules
-router.post("/", upload.single("imatge"), (req, res) => {
-  let nuevoPelicula = new Pelicula({
-    titol: req.body.titol,
-    sinopsi: req.body.sinopsi,
-    duracio: req.body.duracio,
-    valoracio: req.body.valoracio,
-    genere: req.body.genere,
-    imatge: req.file.filename,
-    director: req.body.director,
-    plataformes: [
-      req.body.plat_nom
-        ? {
-            nom: req.body.plat_nom,
-            data: req.body.plat_data,
-            quantitat: req.body.plat_quantitat,
-          }
-        : null,
-    ],
-  });
+router.post("/", autenticacio, upload.single("imatge"), (req, res) => {
+  let nuevoPelicula = new Pelicula(
+    req.body.platnom
+      ? {
+          titol: req.body.titol,
+          sinopsi: req.body.sinopsi,
+          duracio: req.body.duracio,
+          valoracio: req.body.valoracio,
+          genere: req.body.genere,
+          imatge: req.file.filename,
+          director: req.body.director,
+          plataformes: [
+            {
+              nom: req.body.plat_nom,
+              data: req.body.plat_data,
+              quantitat: req.body.plat_quantitat,
+            },
+          ],
+        }
+      : {
+          titol: req.body.titol,
+          sinopsi: req.body.sinopsi,
+          duracio: req.body.duracio,
+          valoracio: req.body.valoracio,
+          genere: req.body.genere,
+          imatge: req.file.filename,
+          director: req.body.director,
+          plataformes: [],
+        }
+  );
   nuevoPelicula
     .save()
     .then((resultado) => {
@@ -104,35 +107,44 @@ router.post("/", upload.single("imatge"), (req, res) => {
     })
     .catch((error) => {
       console.error(error);
-      res.render("error", { error: "Error insertando pelicula" });
+      res.render("admin_error", { error: "Error insertando pelicula" });
     });
 });
 
 // Borrar pelicules
-router.delete("/:id", (req, res) => {
+router.delete("/:id", autenticacio, (req, res) => {
   Pelicula.findByIdAndRemove(req.params.id)
     .then((resultado) => {
       res.redirect(req.baseUrl);
     })
     .catch((error) => {
-      res.render("error", { error: "Error borrando pelicula" });
+      res.render("admin_error", { error: "Error borrando pelicula" });
     });
 });
 
 // Modificar pelicules
-router.put("/:id" /*, upload.single("imatge")*/, (req, res) => {
+router.put("/:id", /* autenticacio ,*/ upload.single("imatge"), (req, res) => {
   Pelicula.findByIdAndUpdate(
     req.params.id,
     {
-      $set: {
-        titol: req.body.titol,
-        sinopsi: req.body.sinopsi,
-        duracio: req.body.duracio,
-        valoracio: req.body.valoracio,
-        genere: req.body.genere,
-        // imatge: req.file.filename,
-        director: req.body.director,
-      },
+      $set: req.file
+        ? {
+            titol: req.body.titol,
+            sinopsi: req.body.sinopsi,
+            duracio: req.body.duracio,
+            valoracio: req.body.valoracio,
+            genere: req.body.genere,
+            imatge: req.file.filename,
+            director: req.body.director,
+          }
+        : {
+            titol: req.body.titol,
+            sinopsi: req.body.sinopsi,
+            duracio: req.body.duracio,
+            valoracio: req.body.valoracio,
+            genere: req.body.genere,
+            director: req.body.director,
+          },
       $push: req.body.plat_nom
         ? {
             plataformes: {
@@ -149,7 +161,7 @@ router.put("/:id" /*, upload.single("imatge")*/, (req, res) => {
       res.redirect(req.baseUrl);
     })
     .catch((error) => {
-      res.render("error", { error: "Error modificando pelicula" });
+      res.render("admin_error", { error: "Error modificando pelicula" });
     });
 });
 

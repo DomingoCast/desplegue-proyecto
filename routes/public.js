@@ -4,6 +4,8 @@ const multer = require("multer");
 let Pelicula = require(__dirname + "/../models/pelicula.js");
 let router = express.Router();
 
+const generes = ["comedia", "terror", "drama", "aventures ", "altres"];
+
 let storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "public/uploads");
@@ -19,21 +21,34 @@ let upload = multer({ storage: storage });
 router.get("/", (req, res) => {
   Pelicula.find()
     .then((resultado) => {
-      res.render("public_index", { pelicules: resultado });
+      res.render("public_index", {
+        pelicules: resultado,
+        generes: generes,
+        query: req.query,
+      });
     })
     .catch((error) => {});
 });
 
 // Formulario de nuevo pelicula
 router.get("/buscar", (req, res) => {
-  Pelicula.find({ name: req.body.name })
+  console.log(req.query);
+  Pelicula.find({
+    titol: { $regex: req.query.titol, $options: "i" },
+    genere: { $regex: req.query.genere, $options: "i" },
+  })
     .then((resultado) => {
-      res.render("public_index", { pelicules: resultado });
+      res.render("public_index", {
+        pelicules: resultado,
+        generes: generes,
+        query: req.query,
+      });
     })
     .catch((error) => {});
 });
 
 // Formulario de edición de pelicula
+/*
 router.get("/editar/:id", (req, res) => {
   Pelicula.findById(req.params["id"])
     .then((resultado) => {
@@ -47,15 +62,20 @@ router.get("/editar/:id", (req, res) => {
       res.render("error", { error: "Pelicula no encontrado" });
     });
 });
+*/
 
 // Ficha de pelicula
-router.get("/:id", (req, res) => {
+router.get("/pelicula/:id", (req, res) => {
   Pelicula.findById(req.params.id)
+    .populate("director")
     .then((resultado) => {
-      if (resultado) res.render("pelicules_ficha", { pelicula: resultado });
-      else res.render("error", { error: "Pelicula no encontrado" });
+      console.log(resultado.plataformes);
+      if (resultado) res.render("public_pelicula", { pelicula: resultado });
+      else res.render("error", { error: "Pelicula no encontrada" });
     })
-    .catch((error) => {});
+    .catch((err) => {
+      res.render("public_error", { error: "Pelicula no encontrada" });
+    });
 });
 
 // Insertar pelicules
@@ -107,5 +127,7 @@ router.put("/:id", (req, res) => {
       res.render("error", { error: "Error modificando pelicula" });
     });
 });
+
+//////////////////////////
 
 module.exports = router;

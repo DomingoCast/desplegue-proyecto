@@ -1,4 +1,4 @@
-{% extends "base.njk" %}
+{% extends "public_base.njk" %}
 
 {% block titulo %}Pelicules | Ficha{% endblock %}
 
@@ -15,7 +15,11 @@
         <p><strong>Plataformes:</strong></p>
         <ul>
             {% for plataforma in pelicula.plataformes %}
-                <li>{{plataforma.nom}}</li>
+                <li>
+                    Nom: {{plataforma.nom}}
+                {% if plataforma.data %} | Data: {{plataforma.data.toLocaleDateString("es-ES")}}{%endif%}
+                {% if plataforma.quantitat %} | Quantitat: {{plataforma.quantitat}}{%endif%}
+                </li>
             {%endfor%}
         </ul>
     </div>

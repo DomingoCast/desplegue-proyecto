@@ -12,12 +12,12 @@ const usuariSchema = new mongoose.Schema({
     unique: true,
   },
   password: {
-    type: Text,
+    type: String,
     min: 8,
     required: true,
   },
 });
 
-const Usuari = mongoose.model("usuaris", directorSchema);
+const Usuari = mongoose.model("usuaris", usuariSchema);
 
 module.exports = Usuari;
